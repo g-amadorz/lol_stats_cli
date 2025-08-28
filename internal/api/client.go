@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"io"
 	"log"
+	"lol_stats"
 	"lol_stats/internal/parser"
 	"net/http"
 	"os"
@@ -22,9 +23,6 @@ type Account struct {
 	GameName string `json:"gameName"`
 
 	TagLine string `json:"tagLine"`
-}
-
-type Match struct {
 }
 
 func LoadAPIKey() string {
@@ -65,13 +63,18 @@ func QueryAccount(username string, tagline string) (Account, error) {
 		return Account{}, fmt.Errorf("unable to read response body %v", err)
 	}
 
-	account := &Account{}
+	account := Account{}
 
-	if err := json.Unmarshal(responseBody, account); err != nil {
+	if err := json.Unmarshal(responseBody, &account); err != nil {
 		return Account{}, fmt.Errorf("unable to to unmarshal response body")
 	}
 
-	return *account, nil
+	return account, nil
+}
+
+func QueryMatch(matchID string) (Match, error) {
+	apiKey := LoadAPIKey()
+
 }
 
 func QueryMatches(account Account) ([]Match, error) {
@@ -91,8 +94,24 @@ func QueryMatches(account Account) ([]Match, error) {
 		return []Match{}, fmt.Errorf("error")
 	}
 
-}
+	matchIDs := []string{}
 
-func QueryMatch(matchID string) {
+	if err := json.Unmarshal(responseBody, &matchIDs); err != nil {
+		return []Match{}, fmt.Errorf("error")
+	}
+
+	matches := []Match{}
+
+	for _, i := range matchIDs {
+		match, err := QueryMatch(i)
+
+		if err != nil {
+			return []Match{}, fmt.Errorf("error")
+		}
+
+		matches = append(matches, match)
+	}
+
+	return matches, nil
 
 }
