@@ -6,16 +6,18 @@ import (
 	"github.com/joho/godotenv"
 	"io"
 	"log"
-	"lol_stats"
+	"lol_stats/internal/model"
 	"lol_stats/internal/parser"
 	"net/http"
 	"os"
 )
 
-const API_BASE_PUUID_URL = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
-const API_BASE_MATCHES_URL = "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/"
-const API_BASE_MATCH_URL = "https://americas.api.riotgames.com/lol/match/v5/matches/"
-const API_PREFIX = "?api_key="
+const apiBasePuuidURL = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
+const apiBaseMatchesURL = "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/"
+const apiBaseMatchURL = "https://americas.api.riotgames.com/lol/match/v5/matches/"
+const apiPrefx = "?api_key="
+
+type Match model.Match
 
 type Account struct {
 	PUUID string `json:"puuid"`
@@ -47,7 +49,7 @@ func QueryAccount(username string, tagline string) (Account, error) {
 
 	username = parser.ParseUsername(username)
 
-	response, err := http.Get(API_BASE_PUUID_URL + username + tagline + API_PREFIX + apiKey)
+	response, err := http.Get(apiBasePuuidURL + username + tagline + apiPrefx + apiKey)
 
 	if err != nil {
 		return Account{}, fmt.Errorf("unable to fetch Account: %w", err)
@@ -75,6 +77,30 @@ func QueryAccount(username string, tagline string) (Account, error) {
 func QueryMatch(matchID string) (Match, error) {
 	apiKey := LoadAPIKey()
 
+	response, err := http.Get(apiBaseMatchURL + matchID + apiPrefx + apiKey)
+
+	if response.StatusCode != http.StatusOK {
+		return Match{}, fmt.Errorf("bad request for match query: %d", response.StatusCode)
+	}
+
+	if err != nil {
+		return Match{}, fmt.Errorf("error")
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return Match{}, fmt.Errorf("error")
+	}
+
+	match := Match{}
+
+	if err := json.Unmarshal(responseBody, &match); err != nil {
+		return Match{}, fmt.Errorf("error")
+	}
+
+	return match, nil
+
 }
 
 func QueryMatches(account Account) ([]Match, error) {
@@ -82,22 +108,26 @@ func QueryMatches(account Account) ([]Match, error) {
 
 	puuid := account.PUUID
 
-	response, err := http.Get(API_BASE_MATCHES_URL + puuid + apiKey)
+	response, err := http.Get(apiBaseMatchesURL + puuid + "/" + "ids?start=0&count=20&api_key=" + apiKey)
+
+	if response.StatusCode != http.StatusOK {
+		return []Match{}, fmt.Errorf("bad request: %d", response.StatusCode)
+	}
 
 	if err != nil {
-		return []Match{}, fmt.Errorf("error")
+		return []Match{}, fmt.Errorf("unable to query matches: %w", err)
 	}
 
 	responseBody, err := io.ReadAll(response.Body)
 
 	if err != nil {
-		return []Match{}, fmt.Errorf("error")
+		return []Match{}, fmt.Errorf("unable to read response body: %w", err)
 	}
 
-	matchIDs := []string{}
+	var matchIDs []string
 
 	if err := json.Unmarshal(responseBody, &matchIDs); err != nil {
-		return []Match{}, fmt.Errorf("error")
+		return []Match{}, fmt.Errorf("unable to unmarshal matchIDs: %w", err)
 	}
 
 	matches := []Match{}
@@ -106,7 +136,7 @@ func QueryMatches(account Account) ([]Match, error) {
 		match, err := QueryMatch(i)
 
 		if err != nil {
-			return []Match{}, fmt.Errorf("error")
+			return []Match{}, fmt.Errorf("unable to request match")
 		}
 
 		matches = append(matches, match)
