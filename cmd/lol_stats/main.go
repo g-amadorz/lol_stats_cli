@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"lol_stats/internal/api"
 )
 
 func main() {
-	fmt.Println("test")
+	id, _ := api.QueryAccount("FREE PALESTINE", "tox")
+
+	fmt.Println(api.QueryMatches(id))
 }
