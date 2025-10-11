@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"lol_stats/internal/api"
-	"lol_stats/internal/parser"
+	"lol_stats/cmd"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,18 +10,7 @@ import (
 
 func main() {
 	apiKey := loadAPIKey()
-	account, err := api.QueryAccount("FREE PALESTINE", "tox", apiKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-	matches, err := api.QueryMatches(account, apiKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	games := parser.ParseMatchesInfo(matches, account)
-
-	fmt.Println(games)
+	cmd.Execute(apiKey)
 }
 
 func loadAPIKey() string {
