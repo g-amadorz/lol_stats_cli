@@ -71,6 +71,7 @@ type Participant struct {
 }
 
 type GameStats struct {
+	ID               string
 	Participant      Participant
 	GameDuration     uint32
 	PerformanceScore float64

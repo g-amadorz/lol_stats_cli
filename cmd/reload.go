@@ -10,8 +10,8 @@ import (
 )
 
 // updateCmd represents the update command
-var updateCmd = &cobra.Command{
-	Use:   "update",
+var reloadCmd = &cobra.Command{
+	Use:   "reload",
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -20,9 +20,9 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(reloadCmd)
 
-	updateCmd.Flags().BoolP("save", "s", false, "Save old games in separate json file after reloading")
+	reloadCmd.Flags().BoolP("save", "s", false, "Save old games in separate json file after reloading")
 
 	// Here you will define your flags and configuration settings.
 
