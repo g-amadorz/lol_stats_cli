@@ -18,14 +18,32 @@ func ParseUsername(username string) string {
 	return parsedUsername + "/"
 }
 
-func ParseMatch(match model.Match) {
+func ParseMatch(match model.Match, puuid string) model.GameStats {
+	game := model.GameStats{}
 
+	for _, participant := range match.Info.Participants {
+		if participant.PUUID == puuid {
+			game.Participant = participant
+			game.GameDuration = uint32(match.Info.GameDuration)
+			game.Win = participant.Win
+		}
+	}
+
+	for _, opponent := range match.Info.Participants {
+		if opponent.Role == game.Participant.Role {
+			game.Opponent = opponent
+		}
+	}
+
+	return game
 }
 
-func ParseMatches(matches []model.Match) {
-	parsedMatches := []model.Match{}
+func ParseMatchesInfo(matches []model.Match, account model.Account) []model.GameStats {
+	games := []model.GameStats{}
 	for _, match := range matches {
-		parsedMatch := ParseMatch(match)
-		parsedMatches = append(parsedMatches, parsedMatch)
+		game := ParseMatch(match, account.PUUID)
+		games = append(games, game)
 	}
+
+	return games
 }

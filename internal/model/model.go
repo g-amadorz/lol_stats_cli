@@ -8,6 +8,14 @@ type Match struct {
 	Info MatchInfo `json:"info"`
 }
 
+type Account struct {
+	PUUID string `json:"puuid"`
+
+	GameName string `json:"gameName"`
+
+	TagLine string `json:"tagLine"`
+}
+
 type MatchInfo struct {
 	GameDuration int           `json:"gameDuration"` // in seconds
 	GameMode     string        `json:"gameMode"`
@@ -21,6 +29,7 @@ type Participant struct {
 	RiotIDTagline  string `json:"riotIdTagline"`
 	ChampionName   string `json:"championName"`
 	ChampionID     int    `json:"championId"`
+	ChampLevel     int    `json:"champLevel"`
 
 	// Core Performance Stats
 	Kills   int  `json:"kills"`
@@ -46,6 +55,12 @@ type Participant struct {
 	TimePlayed         int `json:"timePlayed"`
 	TotalTimeSpentDead int `json:"totalTimeSpentDead"`
 
+	// Outside Scores
+	TotalTimeCCDealt      int `json:"totalTimeCCDealt"`
+	VisionScore           int `json:"visionScore"`
+	TotalHealsOnTeammates int `json:"totalHealsOnTeammates"`
+	TotalMinionsKilled    int `json:"totalMinionsKilled"`
+
 	// Position/Role
 	Lane         string `json:"lane"`
 	Role         string `json:"role"`
@@ -53,4 +68,12 @@ type Participant struct {
 
 	// Placement (for game modes with rankings)
 	Placement int `json:"placement"`
+}
+
+type GameStats struct {
+	Participant      Participant
+	GameDuration     uint32
+	PerformanceScore float64
+	Opponent         Participant
+	Win              bool
 }
