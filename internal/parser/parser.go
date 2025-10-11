@@ -1,5 +1,9 @@
 package parser
 
+import (
+	"lol_stats/internal/model"
+)
+
 func ParseUsername(username string) string {
 	parsedUsername := ""
 
@@ -14,14 +18,14 @@ func ParseUsername(username string) string {
 	return parsedUsername + "/"
 }
 
-func ParsePuuid() {
+func ParseMatch(match model.Match) {
 
 }
 
-func ParseMatch() {
-
-}
-
-func ParseMatches() {
-
+func ParseMatches(matches []model.Match) {
+	parsedMatches := []model.Match{}
+	for _, match := range matches {
+		parsedMatch := ParseMatch(match)
+		parsedMatches = append(parsedMatches, parsedMatch)
+	}
 }
