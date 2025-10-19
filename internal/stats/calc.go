@@ -29,7 +29,6 @@ type PerformanceScore struct {
 	WinBonus        float64
 }
 
-// CalculatePerformanceScore calculates a comprehensive score for a participant's game performance
 func CalculatePerformanceScore(p model.Participant, gameDuration int) PerformanceScore {
 	score := PerformanceScore{}
 
@@ -55,7 +54,6 @@ func CalculatePerformanceScore(p model.Participant, gameDuration int) Performanc
 	return score
 }
 
-// calculateKDAScore calculates score based on KDA ratio
 func calculateKDAScore(kills, deaths, assists int) float64 {
 	// Avoid division by zero
 	if deaths == 0 {
@@ -74,7 +72,6 @@ func calculateKDAScore(kills, deaths, assists int) float64 {
 	return score
 }
 
-// calculateDamageScore calculates score based on damage per minute
 func calculateDamageScore(totalDamage, gameDuration int) float64 {
 	if gameDuration == 0 {
 		return 0
@@ -91,13 +88,11 @@ func calculateDamageScore(totalDamage, gameDuration int) float64 {
 	return score
 }
 
-// calculateVisionScorePoints calculates score based on vision contribution
 func calculateVisionScorePoints(visionScore, gameDuration int) float64 {
 	if gameDuration == 0 {
 		return 0
 	}
 
-	// Vision score per minute
 	vspm := float64(visionScore) / (float64(gameDuration) / 60.0)
 
 	// Scale vision score to 0-15 points

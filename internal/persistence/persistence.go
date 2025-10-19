@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"lol_stats/internal/api"
+	"lol_stats/internal/model"
 	"lol_stats/internal/parser"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -52,13 +54,25 @@ func InteractiveSetup() (*Config, error) {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Username: ")
-	username, _ := reader.ReadString('\n')
+	username, err := reader.ReadString('\n')
+
+	if err != nil {
+		return nil, err
+	}
 
 	fmt.Print("Tagline: ")
-	tagLine, _ := reader.ReadString('\n')
+	tagLine, err := reader.ReadString('\n')
+
+	if err != nil {
+		return nil, err
+	}
 
 	fmt.Print("Region (na1, euw1, kr, etc.): ")
-	region, _ := reader.ReadString('\n')
+	region, err := reader.ReadString('\n')
+
+	if err != nil {
+		return nil, err
+	}
 
 	cfg := &Config{
 		Username: strings.TrimSpace(username),
@@ -107,22 +121,67 @@ func LoadHistory(apiKey string) error {
 	account, err := api.QueryAccount(username, tagLine, apiKey)
 
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to query account: %w", err)
 	}
 
 	matchHistory, err := api.QueryMatches(account, apiKey)
 
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to query match history: %w", err)
 	}
 
 	games := parser.ParseMatchesInfo(matchHistory, account)
+
+	// will break if used have to add some bool to control or check if history.json exists already
+
+	if err := ArchiveHistory(); err != nil && os.IsNotExist(err) {
+		return fmt.Errorf("failed to archive history: %w", err)
+	}
+
+	file, err := os.Create("history.json")
+
+	if err != nil {
+		return fmt.Errorf("failed to create save file: %w", err)
+	}
+
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+
+	if err := encoder.Encode(games); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SaveHistory(overWrite bool) {
+func ArchiveHistory() error {
+	if _, err := os.Stat("history.json"); os.IsNotExist(err) {
+		return err
+	}
+	date := time.Now().Format("2006-01-02")
 
+	if err := os.Rename("history.json", "history_"+date+".json"); err != nil {
+		fmt.Println("Error saving history:", err)
+		return err
+	}
+
+	return nil
 }
 
-func ReadHistory() {
+func ReadHistory() ([]model.GameStats, error) {
+	file, err := os.ReadFile("history.json")
 
+	if err != nil {
+		return nil, fmt.Errorf("error reading match history file: %w", err)
+	}
+
+	var games []model.GameStats
+
+	if err := json.Unmarshal(file, &games); err != nil {
+		return nil, fmt.Errorf("error unmarshaling the match history file: %w", err)
+	}
+
+	return games, nil
 }

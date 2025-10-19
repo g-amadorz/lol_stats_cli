@@ -92,13 +92,13 @@ func TestCalculateDamageScore(t *testing.T) {
 			name:         "average damage",
 			totalDamage:  9000,
 			gameDuration: 1800, // 30 minutes
-			expected:     7.5, // 300 DPM
+			expected:     7.5,  // 300 DPM
 		},
 		{
 			name:         "low damage",
 			totalDamage:  3000,
 			gameDuration: 1800, // 30 minutes
-			expected:     2.5, // 100 DPM
+			expected:     2.5,  // 100 DPM
 		},
 		{
 			name:         "zero duration",
