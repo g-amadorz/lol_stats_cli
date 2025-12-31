@@ -5,20 +5,24 @@ import (
 	"fmt"
 	"io"
 	"lol_stats/internal/model"
-	"lol_stats/internal/parser"
 	"net/http"
+	"strings"
 )
 
 const apiBasePuuidURL = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
 const apiBaseMatchesURL = "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/"
 const apiBaseMatchURL = "https://americas.api.riotgames.com/lol/match/v5/matches/"
-const apiPrefx = "?api_key="
+const apiPrefix = "?api_key="
+
+const url = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/FREE%20PALESTINE/tox?api_key=RGAPI-a66242b8-2b2a-4911-aadf-0ecd983bea2d"
 
 func QueryAccount(username string, tagline string, apiKey string) (model.Account, error) {
 
-	username = parser.ParseUsername(username)
+	username = strings.ReplaceAll(username, " ", "%20") + "/"
 
-	response, err := http.Get(apiBasePuuidURL + username + tagline + apiPrefx + apiKey)
+	query := apiBasePuuidURL + username + tagline + apiPrefix + apiKey
+
+	response, err := http.Get(query)
 
 	if err != nil {
 		return model.Account{}, fmt.Errorf("unable to fetch Account: %w", err)
@@ -45,7 +49,7 @@ func QueryAccount(username string, tagline string, apiKey string) (model.Account
 
 func QueryMatch(matchID string, apiKey string) (model.Match, error) {
 
-	response, err := http.Get(apiBaseMatchURL + matchID + apiPrefx + apiKey)
+	response, err := http.Get(apiBaseMatchURL + matchID + apiPrefix + apiKey)
 
 	if response.StatusCode != http.StatusOK {
 		return model.Match{}, fmt.Errorf("bad request for match query: %d", response.StatusCode)
@@ -75,9 +79,11 @@ func QueryMatch(matchID string, apiKey string) (model.Match, error) {
 
 func QueryMatches(account model.Account, apiKey string) ([]model.Match, error) {
 
-	puuid := account.PUUID
+	puuid := account.PUUID + "/"
 
-	response, err := http.Get(apiBaseMatchesURL + puuid + "/" + "ids?type=ranked&start=0&count=20&api_key=" + apiKey)
+	query := apiBaseMatchesURL + puuid + "ids?type=ranked&start=0&count=20&api_key=" + apiKey
+
+	response, err := http.Get(query)
 
 	if response.StatusCode != http.StatusOK {
 		return []model.Match{}, fmt.Errorf("bad request: %d", response.StatusCode)

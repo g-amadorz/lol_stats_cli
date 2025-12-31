@@ -44,13 +44,6 @@ type Participant struct {
 	// Economy
 	GoldEarned int `json:"goldEarned"`
 
-	// Combat Details
-	DoubleKills   int `json:"doubleKills"`
-	TripleKills   int `json:"tripleKills"`
-	QuadraKills   int `json:"quadraKills"`
-	PentaKills    int `json:"pentaKills"`
-	KillingSprees int `json:"killingSprees"`
-
 	// Game Participation
 	TimePlayed         int `json:"timePlayed"`
 	TotalTimeSpentDead int `json:"totalTimeSpentDead"`
