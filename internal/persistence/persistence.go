@@ -5,9 +5,23 @@ import (
 	"log"
 	"lol_stats/internal/api"
 	"lol_stats/internal/model"
+	"lol_stats/internal/stats"
 	"os"
 	"path/filepath"
 )
+
+// remove apiKey later
+type Config struct {
+	gamename string
+	tag      string
+	apiKey   string
+}
+
+type Performance struct {
+	Idx         int
+	Score       float64
+	Participant model.Participant
+}
 
 const History = "history.json"
 
@@ -33,20 +47,30 @@ func saveConfig(data []byte, filename string) error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-func QueryPerformances(account model.Account, apiKey string) []model.Participant {
+// broken signature currently and unitialized performance
+func QueryPerformances(account model.Account, apiKey string) []Performance {
 
 	matches, err := api.QueryMatches(account, apiKey)
 
-	performances := []model.Participant{}
+	// performances := []model.Participant{}
+
+	performances := []Performance{}
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, match := range matches {
-		for _, player := range match.Info.Participants {
+		for i, player := range match.Info.Participants {
 			if player.RiotIDGameName == account.GameName {
-				performances = append(performances, player)
+
+				performance := Performance{
+					Idx:         i,
+					Score:       stats.CalculateScore(player),
+					Participant: player,
+				}
+
+				performances = append(performances, performance)
 			}
 		}
 	}
@@ -55,7 +79,7 @@ func QueryPerformances(account model.Account, apiKey string) []model.Participant
 
 }
 
-func SaveGames(performances []model.Participant) error {
+func SaveGames(performances []Performance) error {
 
 	data, err := json.Marshal(performances)
 
@@ -67,7 +91,7 @@ func SaveGames(performances []model.Participant) error {
 
 }
 
-func LoadGames() ([]model.Participant, error) {
+func LoadGames() ([]Performance, error) {
 
 	path, err := GetConfigPath(History)
 
@@ -77,7 +101,7 @@ func LoadGames() ([]model.Participant, error) {
 
 	file, err := os.ReadFile(path)
 
-	data := []model.Participant{}
+	data := []Performance{}
 
 	if err := json.Unmarshal(file, &data); err != nil {
 		log.Fatal(err)

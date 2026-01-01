@@ -4,7 +4,7 @@ import (
 	"log"
 	"lol_stats/internal/api"
 	"lol_stats/internal/persistence"
-	"lol_stats/internal/stats"
+	"lol_stats/internal/printer"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -49,8 +49,7 @@ var statsCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		stats.PrintPerformanceChart(performances)
-
+		printer.PrintPerformanceChart(performances)
 	},
 }
 

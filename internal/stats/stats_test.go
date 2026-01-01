@@ -1,6 +1,9 @@
 package stats
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestBuildGrid(t *testing.T) {
 	tests := []struct {
@@ -65,4 +68,10 @@ func TestBuildGrid(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestColors(t *testing.T) {
+	fmt.Println("\033[1;30;42m GREEN \033[0m")
+	// fmt.Println("\033[1;30;43m YELLOW \03           3[0m")
+	fmt.Println("\033[1;30;47m WHITE \033[0m")
 }
