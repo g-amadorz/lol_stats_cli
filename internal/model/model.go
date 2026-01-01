@@ -23,43 +23,33 @@ type MatchInfo struct {
 }
 
 type Participant struct {
-	// Player Identity
-	PUUID          string `json:"puuid"`
 	RiotIDGameName string `json:"riotIdGameName"`
 	RiotIDTagline  string `json:"riotIdTagline"`
 	ChampionName   string `json:"championName"`
-	ChampionID     int    `json:"championId"`
 	ChampLevel     int    `json:"champLevel"`
 
-	// Core Performance Stats
 	Kills   int  `json:"kills"`
 	Deaths  int  `json:"deaths"`
 	Assists int  `json:"assists"`
 	Win     bool `json:"win"`
 
-	// Damage Stats
 	TotalDamageDealtToChampions int `json:"totalDamageDealtToChampions"`
 	TotalDamageTaken            int `json:"totalDamageTaken"`
 
-	// Economy
 	GoldEarned int `json:"goldEarned"`
 
-	// Game Participation
 	TimePlayed         int `json:"timePlayed"`
 	TotalTimeSpentDead int `json:"totalTimeSpentDead"`
 
-	// Outside Scores
 	TotalTimeCCDealt      int `json:"totalTimeCCDealt"`
 	VisionScore           int `json:"visionScore"`
 	TotalHealsOnTeammates int `json:"totalHealsOnTeammates"`
 	TotalMinionsKilled    int `json:"totalMinionsKilled"`
 
-	// Position/Role
 	Lane         string `json:"lane"`
 	Role         string `json:"role"`
 	TeamPosition string `json:"teamPosition"`
 
-	// Placement (for game modes with rankings)
 	Placement int `json:"placement"`
 }
 

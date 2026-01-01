@@ -81,7 +81,7 @@ func QueryMatches(account model.Account, apiKey string) ([]model.Match, error) {
 
 	puuid := account.PUUID + "/"
 
-	query := apiBaseMatchesURL + puuid + "ids?type=ranked&start=0&count=20&api_key=" + apiKey
+	query := apiBaseMatchesURL + puuid + "ids?queue=420&type=ranked&start=0&count=50&api_key=" + apiKey
 
 	response, err := http.Get(query)
 

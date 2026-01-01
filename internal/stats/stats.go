@@ -1,7 +1,6 @@
 package stats
 
 import (
-	"fmt"
 	"lol_stats/internal/model"
 	"math/rand"
 )
@@ -12,7 +11,7 @@ func calculateScoreTop(model.Participant) float64 {
 }
 
 func calculateScoreJungle(model.Participant) float64 {
-	return float64(rand.Intn(10))
+	return float64(rand.Intn(10)) + 1
 }
 
 func calculateScoreMid(model.Participant) float64 {
@@ -30,20 +29,19 @@ func calculateScoreSupport(model.Participant) float64 {
 }
 
 func CalculateScore(player model.Participant) float64 {
-	fmt.Println(player.ChampionName)
 	switch player.Lane {
 	case "TOP":
 		return calculateScoreTop(player)
 	case "JUNGLE":
 		return calculateScoreJungle(player)
 
-	case "MID":
+	case "MIDDLE":
 		return calculateScoreMid(player)
 
-	case "BOT":
+	case "BOTTOM":
 		return calculateScoreBot(player)
 
-	case "SUPPORT":
+	case "UTILITY":
 		return calculateScoreSupport(player)
 
 	default:

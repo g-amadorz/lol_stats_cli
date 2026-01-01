@@ -47,12 +47,9 @@ func saveConfig(data []byte, filename string) error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-// broken signature currently and unitialized performance
 func QueryPerformances(account model.Account, apiKey string) []Performance {
 
 	matches, err := api.QueryMatches(account, apiKey)
-
-	// performances := []model.Participant{}
 
 	performances := []Performance{}
 
@@ -60,8 +57,20 @@ func QueryPerformances(account model.Account, apiKey string) []Performance {
 		log.Fatal(err)
 	}
 
+	count := 0
+
 	for _, match := range matches {
+
+		if count >= 20 {
+			break
+		}
+
 		for i, player := range match.Info.Participants {
+
+			if player.Lane == "NONE" {
+				break
+			}
+
 			if player.RiotIDGameName == account.GameName {
 
 				performance := Performance{
@@ -71,6 +80,10 @@ func QueryPerformances(account model.Account, apiKey string) []Performance {
 				}
 
 				performances = append(performances, performance)
+
+				count++
+
+				break
 			}
 		}
 	}
