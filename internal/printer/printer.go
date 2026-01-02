@@ -57,20 +57,95 @@ func buildGrid(cells []Cell) grid {
 
 func printCell(cell Cell) {
 	val := cell.score
-
 	id := cell.id
 
-	escape := "\033[0;37;30m"
+	var escape string
 	switch {
+	case val == 0:
+		escape = "\033[48;2;100;100;100m\033[38;2;255;255;255m"
 	case val > 0 && val < 5:
-		escape = "\033[1;30;47m"
+		escape = "\033[48;2;255;0;0m\033[38;2;0;0;0m"
 	case val >= 5 && val < 10:
-		escape = "\033[1;30;43m"
+		escape = "\033[48;2;255;255;0m\033[38;2;0;0;0m"
 	case val >= 10:
-		escape = "\033[1;30;42m"
+		escape = "\033[48;2;0;255;0m\033[38;2;0;0;0m"
 	}
 
-	str := "  %d "
+	var str string
 
-	fmt.Printf(escape+str+"\033[0m", id)
+	if id < 10 {
+		str = fmt.Sprint("0", id)
+	} else {
+		str = fmt.Sprint(id)
+	}
+
+	fmt.Printf("%s  %s  \033[0m", escape, str)
+}
+
+func PrintParticipantStats(performance persistence.Performance) {
+
+	p := performance.Participant
+
+	resultColor := "\033[1;31m"
+	result := "DEFEAT"
+	if p.Win {
+		resultColor = "\033[1;32m"
+		result = "VICTORY"
+	}
+
+	fmt.Printf("\n%s════════════════════════════════════════════════════════\033[0m\n", resultColor)
+	fmt.Printf("%s%s %s\033[0m\n", resultColor, result, resultColor)
+	fmt.Printf("%s════════════════════════════════════════════════════════\033[0m\n\n", resultColor)
+
+	fmt.Printf("Player: %s#%s\n", p.RiotIDGameName, p.RiotIDTagline)
+	fmt.Printf("Champion: %s (Level %d)\n", p.ChampionName, p.ChampLevel)
+	fmt.Printf("Position: %s\n\n", p.Lane)
+
+	kda := "Perfect"
+	if p.Deaths > 0 {
+		kda = fmt.Sprintf("%.2f", float64(p.Kills+p.Assists)/float64(p.Deaths))
+	}
+	fmt.Printf("━━━ Combat Stats ━━━\n")
+	fmt.Printf("  K/D/A:  %d / %d / %d  (KDA: %s)\n", p.Kills, p.Deaths, p.Assists, kda)
+	fmt.Printf("  Damage Dealt:  %s\n", formatNumber(p.TotalDamageDealtToChampions))
+	fmt.Printf("  Damage Taken:  %s\n", formatNumber(p.TotalDamageTaken))
+	fmt.Printf("  CC Duration:   %.1fs\n\n", float64(p.TotalTimeCCDealt))
+
+	// Economy
+	fmt.Printf("━━━ Economy ━━━\n")
+	fmt.Printf("  Gold Earned:  %s\n", formatNumber(p.GoldEarned))
+	fmt.Printf("  CS:           %d\n", p.TotalMinionsKilled)
+	csPerMin := 0.0
+	if p.TimePlayed > 0 {
+		csPerMin = float64(p.TotalMinionsKilled) / (float64(p.GameDuration) / 60.0)
+	}
+
+	// fmt.Println(p.GameDuration)
+
+	fmt.Printf("  CS/min:       %.1f\n\n", csPerMin)
+
+	// Vision & Support
+	fmt.Printf("━━━ Vision & Support ━━━\n")
+	fmt.Printf("  Vision Score:  %d\n", p.VisionScore)
+	if p.TotalHealsOnTeammates > 0 {
+		fmt.Printf("  Team Healing:  %s\n", formatNumber(p.TotalHealsOnTeammates))
+	}
+
+	fmt.Printf("\n")
+}
+
+func formatNumber(n int) string {
+	str := fmt.Sprintf("%d", n)
+	if len(str) <= 3 {
+		return str
+	}
+
+	result := ""
+	for i, digit := range str {
+		if i > 0 && (len(str)-i)%3 == 0 {
+			result += ","
+		}
+		result += string(digit)
+	}
+	return result
 }

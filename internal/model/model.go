@@ -23,6 +23,7 @@ type MatchInfo struct {
 }
 
 type Participant struct {
+	GameDuration   int
 	RiotIDGameName string `json:"riotIdGameName"`
 	RiotIDTagline  string `json:"riotIdTagline"`
 	ChampionName   string `json:"championName"`
@@ -38,13 +39,14 @@ type Participant struct {
 
 	GoldEarned int `json:"goldEarned"`
 
-	TimePlayed         int `json:"timePlayed"`
-	TotalTimeSpentDead int `json:"totalTimeSpentDead"`
+	TimePlayed int `json:"timePlayed"`
 
 	TotalTimeCCDealt      int `json:"totalTimeCCDealt"`
 	VisionScore           int `json:"visionScore"`
 	TotalHealsOnTeammates int `json:"totalHealsOnTeammates"`
-	TotalMinionsKilled    int `json:"totalMinionsKilled"`
+	LaneMinionsKilled     int `json:"totalMinionsKilled"`
+	JungleMinionsKilled   int `json:"neutralMinionsKilled"`
+	TotalMinionsKilled    int
 
 	Lane         string `json:"lane"`
 	Role         string `json:"role"`

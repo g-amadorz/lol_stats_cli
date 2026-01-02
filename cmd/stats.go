@@ -31,7 +31,7 @@ var statsCmd = &cobra.Command{
 		}
 
 		if load {
-			apiKey := "RGAPI-d93ba2b3-d94b-4738-9d81-6e27cf28d6d8"
+			apiKey := "RGAPI-22129a61-3a2d-4a80-9279-6eb6da70856c"
 
 			account, err := api.QueryAccount(gamename, tag, apiKey)
 
@@ -50,6 +50,8 @@ var statsCmd = &cobra.Command{
 		}
 
 		printer.PrintPerformanceChart(performances)
+
+		printer.PrintParticipantStats(performances[1])
 	},
 }
 

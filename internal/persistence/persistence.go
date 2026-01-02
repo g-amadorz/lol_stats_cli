@@ -65,7 +65,7 @@ func QueryPerformances(account model.Account, apiKey string) []Performance {
 			break
 		}
 
-		for i, player := range match.Info.Participants {
+		for _, player := range match.Info.Participants {
 
 			if player.Lane == "NONE" {
 				break
@@ -73,15 +73,16 @@ func QueryPerformances(account model.Account, apiKey string) []Performance {
 
 			if player.RiotIDGameName == account.GameName {
 
+				count++
+				player.GameDuration = match.Info.GameDuration
+				player.TotalMinionsKilled = player.LaneMinionsKilled + player.JungleMinionsKilled
 				performance := Performance{
-					Idx:         i,
+					Idx:         count,
 					Score:       stats.CalculateScore(player),
 					Participant: player,
 				}
 
 				performances = append(performances, performance)
-
-				count++
 
 				break
 			}
