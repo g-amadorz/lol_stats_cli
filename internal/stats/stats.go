@@ -29,6 +29,7 @@ func calculateScoreSupport(model.Participant) float64 {
 }
 
 func CalculateScore(player model.Participant) float64 {
+
 	switch player.Lane {
 	case "TOP":
 		return calculateScoreTop(player)

@@ -17,7 +17,7 @@ func PrintPerformanceChart(performances []persistence.Performance) {
 	cells := []Cell{}
 
 	for _, p := range performances {
-		fmt.Printf("Lane: '%s', Score: %.1f\n", p.Participant.Lane, p.Score)
+		// fmt.Printf("Lane: '%s', Score: %.1f\n", p.Participant.Lane, p.Score)
 
 		cell := Cell{
 			id:    p.Idx,
@@ -119,8 +119,6 @@ func PrintParticipantStats(performance persistence.Performance) {
 	if p.TimePlayed > 0 {
 		csPerMin = float64(p.TotalMinionsKilled) / (float64(p.GameDuration) / 60.0)
 	}
-
-	// fmt.Println(p.GameDuration)
 
 	fmt.Printf("  CS/min:       %.1f\n\n", csPerMin)
 

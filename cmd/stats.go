@@ -21,17 +21,15 @@ var statsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		load, err := cmd.Flags().GetBool("load")
 		if err != nil {
-			log.Fatal("Error parsing `all` flag")
+			log.Fatal("Error parsing `load` flag")
 		}
-
-		// history, err := persistence.GetConfigPath("history.json")
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		if load {
-			apiKey := "RGAPI-22129a61-3a2d-4a80-9279-6eb6da70856c"
+			apiKey := LoadApiKey()
 
 			account, err := api.QueryAccount(gamename, tag, apiKey)
 
@@ -46,19 +44,28 @@ var statsCmd = &cobra.Command{
 		performances, err := persistence.LoadGames()
 
 		if err != nil {
+			log.Fatal("Error parsing `game` flag")
+		}
+
+		game, err := cmd.Flags().GetInt("game")
+
+		if err != nil {
 			log.Fatal(err)
 		}
 
-		printer.PrintPerformanceChart(performances)
+		if game > 0 {
+			printer.PrintParticipantStats(performances[game])
+		} else {
+			printer.PrintPerformanceChart(performances)
+		}
 
-		printer.PrintParticipantStats(performances[1])
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(statsCmd)
 	statsCmd.Flags().BoolP("load", "l", false, "Show past 20 games")
-
+	statsCmd.Flags().IntP("game", "g", 0, "Show indexed game")
 }
 
 func LoadApiKey() string {
@@ -70,8 +77,6 @@ func LoadApiKey() string {
 	}
 
 	apiKey := os.Getenv("API_KEY")
-
-	log.Println(apiKey)
 
 	return apiKey
 }
