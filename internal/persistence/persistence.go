@@ -24,6 +24,7 @@ type Performance struct {
 }
 
 const History = "history.json"
+const Account = "account.json"
 
 func GetConfigPath(file string) (string, error) {
 	homeDir, err := os.UserHomeDir()
@@ -33,7 +34,18 @@ func GetConfigPath(file string) (string, error) {
 	return filepath.Join(homeDir, "lol_stats", file), nil
 }
 
-func saveConfig(data []byte, filename string) error {
+func loadFile(filename string) ([]byte, error) {
+
+	path, err := GetConfigPath(filename)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return os.ReadFile(path)
+}
+
+func savePath(data []byte, filename string) error {
 	configPath, err := GetConfigPath(filename)
 	if err != nil {
 		return err
@@ -47,9 +59,38 @@ func saveConfig(data []byte, filename string) error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-func QueryPerformances(account model.Account, apiKey string) []Performance {
+func SaveConfig(account model.Config) error {
 
-	matches, err := api.QueryMatches(account, apiKey)
+	data, err := json.Marshal(account)
+
+	if err != nil {
+		panic(err)
+	}
+	return savePath(data, Account)
+}
+
+func LoadConfig() (model.Config, error) {
+
+	file, err := loadFile(Account)
+
+	if err != nil {
+		return model.Config{}, err
+	}
+
+	data := model.Config{}
+
+	if err := json.Unmarshal(file, &data); err != nil {
+
+		return model.Config{}, err
+	}
+
+	return data, nil
+
+}
+
+func QueryPerformances(config model.Config, apiKey string) []Performance {
+
+	matches, err := api.QueryMatches(config.PUUID, apiKey)
 
 	performances := []Performance{}
 
@@ -71,7 +112,7 @@ func QueryPerformances(account model.Account, apiKey string) []Performance {
 				break
 			}
 
-			if player.RiotIDGameName == account.GameName {
+			if player.RiotIDGameName == config.Username {
 
 				count++
 				player.GameDuration = match.Info.GameDuration
@@ -101,24 +142,22 @@ func SaveGames(performances []Performance) error {
 		log.Fatal(err)
 	}
 
-	return saveConfig(data, History)
+	return savePath(data, History)
 
 }
 
 func LoadGames() ([]Performance, error) {
 
-	path, err := GetConfigPath(History)
+	file, err := loadFile(History)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-
-	file, err := os.ReadFile(path)
 
 	data := []Performance{}
 
 	if err := json.Unmarshal(file, &data); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	return data, nil

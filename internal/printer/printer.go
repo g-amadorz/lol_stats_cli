@@ -63,11 +63,11 @@ func printCell(cell Cell) {
 	switch {
 	case val == 0:
 		escape = "\033[48;2;100;100;100m\033[38;2;255;255;255m"
-	case val > 0 && val < 5:
+	case val > 0 && val < 50:
 		escape = "\033[48;2;255;0;0m\033[38;2;0;0;0m"
-	case val >= 5 && val < 10:
+	case val >= 50 && val < 80:
 		escape = "\033[48;2;255;255;0m\033[38;2;0;0;0m"
-	case val >= 10:
+	case val >= 80:
 		escape = "\033[48;2;0;255;0m\033[38;2;0;0;0m"
 	}
 
@@ -100,6 +100,8 @@ func PrintParticipantStats(performance persistence.Performance) {
 	fmt.Printf("Player: %s#%s\n", p.RiotIDGameName, p.RiotIDTagline)
 	fmt.Printf("Champion: %s (Level %d)\n", p.ChampionName, p.ChampLevel)
 	fmt.Printf("Position: %s\n\n", p.Lane)
+
+	fmt.Printf("Score: %.1f\n\n", float64(performance.Score))
 
 	kda := "Perfect"
 	if p.Deaths > 0 {

@@ -16,6 +16,11 @@ type Account struct {
 	TagLine string `json:"tagLine"`
 }
 
+type Config struct {
+	Username string
+	PUUID    string
+}
+
 type MatchInfo struct {
 	GameDuration int           `json:"gameDuration"` // in seconds
 	GameMode     string        `json:"gameMode"`

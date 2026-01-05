@@ -77,11 +77,9 @@ func QueryMatch(matchID string, apiKey string) (model.Match, error) {
 
 // TODO: Implement a go routine to make the querying faster
 
-func QueryMatches(account model.Account, apiKey string) ([]model.Match, error) {
+func QueryMatches(puuid string, apiKey string) ([]model.Match, error) {
 
-	puuid := account.PUUID + "/"
-
-	query := apiBaseMatchesURL + puuid + "ids?queue=420&type=ranked&start=0&count=50&api_key=" + apiKey
+	query := apiBaseMatchesURL + puuid + "/" + "ids?queue=420&type=ranked&start=0&count=50&api_key=" + apiKey
 
 	response, err := http.Get(query)
 

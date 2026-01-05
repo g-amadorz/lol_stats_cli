@@ -1,18 +1,22 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"lol_stats/internal/api"
+	"lol_stats/internal/model"
 	"lol_stats/internal/persistence"
 	"lol_stats/internal/printer"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
-const gamename = "FREE PALESTINE"
-const tag = "tox"
+// const gamename = "FREE PALESTINE"
+// const tag = "tox"
 
 var statsCmd = &cobra.Command{
 	Use:   "stats",
@@ -28,15 +32,27 @@ var statsCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if load {
-			apiKey := LoadApiKey()
+		apiKey := LoadApiKey()
 
-			account, err := api.QueryAccount(gamename, tag, apiKey)
+		if load {
+
+			path, err := persistence.GetConfigPath(persistence.Account)
+
+			if err != nil {
+				panic(err)
+			}
+
+			if _, err := os.Stat(path); err != nil {
+				configSetup(apiKey)
+			}
+
+			config, err := persistence.LoadConfig()
 
 			if err != nil {
 				log.Fatal(err)
 			}
-			performances := persistence.QueryPerformances(account, apiKey)
+
+			performances := persistence.QueryPerformances(config, apiKey)
 
 			persistence.SaveGames(performances)
 		}
@@ -60,6 +76,50 @@ var statsCmd = &cobra.Command{
 		}
 
 	},
+}
+
+func configSetup(apiKey string) {
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("There is no account file, press Y/N to proceed and make one or to terminate")
+
+	ans, err := reader.ReadString('\n')
+
+	if err != nil {
+		panic(err)
+	}
+
+	if strings.ToUpper(ans) == "N" {
+		os.Exit(0)
+	}
+
+	fmt.Print("Username: ")
+	username, err := reader.ReadString('\n')
+
+	username = strings.TrimSpace(username)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print("Tagline: ")
+	tagline, err := reader.ReadString('\n')
+
+	if err != nil {
+		panic(err)
+	}
+
+	tagline = strings.TrimSpace(tagline)
+
+	account, err := api.QueryAccount(username, tagline, apiKey)
+
+	if err != nil {
+		log.Fatal("error querying account")
+	}
+
+	config := model.Config{PUUID: account.PUUID, Username: account.GameName}
+
+	persistence.SaveConfig(config)
 }
 
 func init() {
